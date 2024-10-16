@@ -137,7 +137,7 @@ class MultipleBoundarySelection(customtkinter.CTkFrame):
         self.clear_window()
 
         self.image_set[f"image set {self.image_set_counter}"]["Boundary_points"] = self.points
-        if self.image_set_counter==len(self.image_set):
+        if self.image_set_counter>=len(self.image_set):
             self.creator.calculate_boundaries(self.image_set)
         else:
             self.image_set_counter+=1
@@ -147,6 +147,10 @@ class MultipleBoundarySelection(customtkinter.CTkFrame):
     def clear_window(self):
         for widget in self.winfo_children():
             widget.destroy()
+
+
+
+
 
 
 
