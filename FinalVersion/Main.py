@@ -2,6 +2,8 @@ import customtkinter
 from FinalVersion.WelcomePage import WelcomeFrame
 from FinalVersion.MicrographPage import MicrographFrame
 from FinalVersion.DataAnalyse.DataAnalysisFrame import DataAnalysisFrame
+from FinalVersion.HighThrougput.HighThroughFrame import HighThroughFrame
+
 
 class window(customtkinter.CTk):
     def __init__(self):
@@ -32,7 +34,9 @@ class window(customtkinter.CTk):
         MicrographFrame.MicrographFrame(creator=self).pack(fill="both", expand=True)
 
     def set_analysis_stack(self):
-        pass
+        self.clear_window()
+        HighThroughFrame(self).pack()
+
     def set_analyse_load(self):
         self.clear_window()
         DataAnalysisFrame(self).pack()

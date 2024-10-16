@@ -8,6 +8,7 @@ import itertools
 import numpy as np
 import heapq
 from FinalVersion.utilities.ImageProcessor import ImageProcessor
+import matplotlib.pyplot as plt
 
 points_inside=[[2500,2500]]
 points_outside=[[1,1],[80,2],[80,90]]
@@ -20,6 +21,7 @@ points=[(600,20),(440,1700),(430,2000),(300,4000),(580,7000)]
 def Isolate_Boundary(images_paths,points, points_inside, points_outside,mean_weight=350,mean_range=30,width=0,height=0):
     original_image=ImageProcessor(images_paths[0], width, height)
     overall_binary = np.zeros(np.shape(original_image))
+    del original_image
 
     #TODO:change this points
     boundary_start=list(points[0][0][0])
@@ -29,11 +31,51 @@ def Isolate_Boundary(images_paths,points, points_inside, points_outside,mean_wei
         img= ImageProcessor(path, width, height)
         for boundary in boundaries:
             binary = IsolateBoundary(img, boundary, mean_weight, mean_range)
+            del img
             overall_binary[binary == 255] = 255
+            del binary
 
+    # plt.imshow(overall_binary)
+    # plt.axis('off')
+    # plt.rcParams['image.interpolation'] = 'nearest'
+    # plt.savefig(rf'C:\Users\Tudor D\OneDrive\Desktop\Overall Binary.png', dpi=5000)
+    # plt.close()
 
+    #start_binary=overall_binary[boundary_start[0]-10:boundary_start[0]+10,boundary_start[1]-10:boundary_start[1]+10]
+
+    #plt.imshow(start_binary)
+    ## plt.axis('off')
+    #plt.rcParams['image.interpolation'] = 'nearest'
+    #plt.savefig(rf'C:\Users\Tudor D\OneDrive\Desktop\Start Binary.png')
+    #plt.close()
+
+    #end_binary = overall_binary[boundary_end[0] - 10:boundary_end[0] + 10,              boundary_end[1] - 10:boundary_end[1] + 10]
+
+    #plt.imshow(end_binary)
+    # plt.axis('off')
+    #plt.rcParams['image.interpolation'] = 'nearest'
+    #plt.savefig(rf'C:\Users\Tudor D\OneDrive\Desktop\End Binary.png')
+    #plt.close()
+
+    print("filling")
     Array = ConnectingBoundaryFilling(overall_binary, boundary_start, boundary_end, points_inside, points_outside)
-    original_image[Array == 200] = 255
+
+    #plt.imshow(Array)
+    # plt.axis('off')
+    #plt.rcParams['image.interpolation'] = 'nearest'
+    #plt.savefig(rf'C:\Users\Tudor D\OneDrive\Desktop\Array Image.png', dpi=1000)
+    #plt.close()
+
+    #print(f"Np.unique for Array is {np.unique(Array)}")
+
+    original_image = ImageProcessor(images_paths[0], width, height)
+    original_image[Array == 1] = 255
+
+    #plt.imshow(original_image)
+    # plt.axis('off')
+    #plt.rcParams['image.interpolation'] = 'nearest'
+    #plt.savefig(rf'C:\Users\Tudor D\OneDrive\Desktop\Filled Image.png', dpi=1000)
+    #plt.close()
 
     return original_image
 
@@ -350,6 +392,9 @@ def IsolateBoundary(original_image,points,mean_weight,mean_range):
 
     raw_image = original_image.copy()
 
+    raw_image[raw_image==255]=254
+
+
     mean_kernel = np.ones((mean_range, mean_range)) / mean_weight
 
     print("raw_image shape:", raw_image.shape)
@@ -512,12 +557,5 @@ def IsolateBoundary(original_image,points,mean_weight,mean_range):
 
     binary[raw_image==255]=255
 
+
     return binary
-
-
-
-
-
-
-
-

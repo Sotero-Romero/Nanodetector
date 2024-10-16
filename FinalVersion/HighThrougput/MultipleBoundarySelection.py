@@ -1,40 +1,51 @@
 import customtkinter
 import numpy as np
-from FinalVersion.Analysis.BoundaryIsolation import Isolate_Boundary
 from FinalVersion.MicrographPage.ParametersFrames.ImageDisplayer import ImageDisplayer
 from FinalVersion.utilities.ImageProcessor import ImageProcessor
 import itertools
 
 
-class BoundarySelection(customtkinter.CTkFrame):
-    points=[[[]]]
-    points_inside=[]
-    points_outside=[]
-    point_counter=0
-    image_counter=0
-    boundary_counter=0
+class MultipleBoundarySelection(customtkinter.CTkFrame):
+    image_set_counter=1
 
-    def __init__(self,creator, images,width,height):
+
+    def __init__(self,creator, image_set):
         super().__init__(master=creator)
 
         self.creator=creator
-        self.images=images
-        self.width=width
-        self.height=height
+        self.image_set=image_set
         self.colors = itertools.cycle(['red', 'green', 'blue', 'orange', 'purple', 'cyan', 'magenta'])
         self.color=next(self.colors)
 
-
-        self.current_image=ImageProcessor(self.images[self.image_counter],width,height,14)
-
-        self.label=customtkinter.CTkLabel(master=self,text="Select a point outside the boundary")
-        self.label.pack(pady=20)
+        self.set_up()
 
 
-        self.imageDisplayer=ImageDisplayer(creator,self.current_image,downgrade=True)
+
+
+    def set_up(self):
+        self.point_counter = 0
+        self.image_counter = 0
+        self.boundary_counter = 0
+        self.points=[[[]]]
+
+
+
+
+
+        self.images=self.image_set[f"image set {self.image_set_counter}"]["images"]
+
+        width,height=self.images[self.image_counter]["dimensions"]
+        self.current_image=ImageProcessor(self.images[self.image_counter]["path"],width,height,0)
+
+
+
+        self.imageDisplayer=ImageDisplayer(self,self.current_image,downgrade=True)
         self.imageDisplayer.can.mpl_connect('button_press_event', self.click_event)
         self.imageDisplayer.can.mpl_connect('key_press_event', self.delete)
         self.imageDisplayer.pack()
+
+        self.label = customtkinter.CTkLabel(master=self, text="Select a point outside the boundary")
+        self.label.pack(pady=20)
 
 
         self.boundaryButtom=customtkinter.CTkButton(self,text="+ Boundary",command=self.add_boundary,state="disabled")
@@ -44,7 +55,7 @@ class BoundarySelection(customtkinter.CTkFrame):
         self.done.pack()
 
         if self.image_counter==len(self.images)-1:
-            self.done.configure(text="Done",command=self.isolate)
+            self.done.configure(text="Done",command=self.next_set)
 
 
     def delete(self,event):
@@ -60,10 +71,10 @@ class BoundarySelection(customtkinter.CTkFrame):
             y = round(event.xdata * 10)
             x = round(event.ydata * 10)
             if self.point_counter==0:
-                self.points_outside.append([x,y])
+                self.image_set[f"image set {self.image_set_counter}"]["Out_points"]=[[x,y]]
                 self.label.configure(text="Select a point inside the boundary")
             else:
-                self.points_inside.append([x,y])
+                self.image_set[f"image set {self.image_set_counter}"]["In_points"]=[[x,y]]
                 self.label.configure(text="Select boundary points")
             self.point_counter+=1
 
@@ -106,23 +117,36 @@ class BoundarySelection(customtkinter.CTkFrame):
         self.boundary_counter=0
         self.image_counter+=1
         self.points.append([[]])
-        self.current_image=ImageProcessor(self.images[self.image_counter],self.width,self.height)
+
+        width, height = self.images[self.image_counter]["dimensions"]
+        self.current_image = ImageProcessor(self.images[self.image_counter]["path"], width, height, 0)
+
         self.imageDisplayer.update_Image(self.current_image,downgrade=True)
 
         self.done.configure(state="disabled")
         self.boundaryButtom.configure(state="disabled")
 
         if self.image_counter==len(self.images)-1:
-            self.done.configure(text="Done",command=self.isolate)
+            self.done.configure(text="Done",command=self.next_set)
 
         self.colors = itertools.cycle(['red', 'green', 'blue', 'orange', 'purple', 'cyan', 'magenta'])
         self.color=next(self.colors)
 
 
+    def next_set(self):
+        self.clear_window()
+
+        self.image_set[f"image set {self.image_set_counter}"]["Boundary_points"] = self.points
+        if self.image_set_counter==len(self.image_set):
+            self.creator.calculate_boundaries(self.image_set)
+        else:
+            self.image_set_counter+=1
+            self.set_up()
 
 
-    #TODO: make it work
-    def isolate(self):
-        del self.current_image
-        img=Isolate_Boundary(self.images,self.points,self.points_inside,self.points_outside,width=self.width,height=self.height)
-        self.creator.set_parameters(img)
+    def clear_window(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+
+

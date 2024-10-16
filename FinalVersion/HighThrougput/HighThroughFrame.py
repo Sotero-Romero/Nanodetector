@@ -1,0 +1,54 @@
+import customtkinter
+from FinalVersion.HighThrougput.MultipleImageUploader import MultipleImageUploader
+from FinalVersion.HighThrougput.choosing import Choosing,Choosing2
+from FinalVersion.HighThrougput.MultipleBoundarySelection import MultipleBoundarySelection
+from FinalVersion.HighThrougput.CannyBoundarySlider import CannyBoundarySlider
+from FinalVersion.HighThrougput.SelectParameters import AllParameters
+
+class HighThroughFrame(customtkinter.CTkFrame):
+    def __init__(self,creator):
+        super(HighThroughFrame, self).__init__(creator)
+        self.uploadImages()
+
+    def clear_window(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+    def uploadImages(self):
+        m=MultipleImageUploader(self)
+        m.pack()
+        button=customtkinter.CTkButton(self,text="Done",command=lambda :self.selectBoundary(m.groups))
+        button.pack()
+
+    def selectBoundary(self,images):
+        self.images=images
+        self.clear_window()
+        Choosing(self).pack()
+
+    def set_manualBoundary(self):
+        self.clear_window()
+        MultipleBoundarySelection(self,self.images).pack()
+
+    def set_automaticBoundary(self):
+        self.clear_window()
+        pass
+
+    def calculate_boundaries(self,data):
+        self.clear_window()
+        self.images = data
+        m=CannyBoundarySlider(self,data)
+        m.pack()
+        button = customtkinter.CTkButton(self, text="Done", command=lambda: self.matching(m.parameters))
+        button.pack()
+
+    def global_parameters(self):
+        pass
+    def all_paremeters(self):
+        self.clear_window()
+        AllParameters(self,self.images).pack()
+
+    def matching(self,parameters):
+        self.clear_window()
+        self.images["boundary_parameters"]=parameters
+        Choosing2(self).pack()
+        

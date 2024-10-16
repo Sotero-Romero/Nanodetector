@@ -3,11 +3,15 @@ from FinalVersion.utilities.RawToNumpy import RawToNumpy
 
 
 
-def ImageProcessor(image,width,height):
+def ImageProcessor(image,width,height,addition=14):
+
     #be careful because the paths have (Secondary) or (Primary) at the end
+    if addition!=0:
+        image=image[:-addition]
+
     if width==0:
-        image = cv2.imread(image[:-14], 1)[:,:,0]
+        image = cv2.imread(image, 1)[:,:,0]
     else:
-        image =RawToNumpy(image[:-14],height,width)
+        image =RawToNumpy(image,height,width)
 
     return image
