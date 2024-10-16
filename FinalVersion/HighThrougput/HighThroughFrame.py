@@ -43,6 +43,7 @@ class HighThroughFrame(customtkinter.CTkFrame):
 
     def global_parameters(self):
         pass
+
     def all_paremeters(self):
         self.clear_window()
         AllParameters(self,self.images).pack()
