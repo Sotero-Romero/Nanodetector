@@ -10,12 +10,12 @@ import heapq
 from FinalVersion.utilities.ImageProcessor import ImageProcessor
 import matplotlib.pyplot as plt
 
-points_inside=[[2500,2500]]
-points_outside=[[1,1],[80,2],[80,90]]
-boundary_start=[600,20]
-boundary_end=[580,7000]
+#points_inside=[[2500,2500]]
+#points_outside=[[1,1],[80,2],[80,90]]
+#boundary_start=[600,20]
+#boundary_end=[580,7000]
 
-points=[(600,20),(440,1700),(430,2000),(300,4000),(580,7000)]
+#points=[(600,20),(440,1700),(430,2000),(300,4000),(580,7000)]
 
 
 def Isolate_Boundary(images_paths,points, points_inside, points_outside,mean_weight=350,mean_range=30,width=0,height=0):
@@ -104,7 +104,7 @@ def ConnectingBoundaryFilling(binary,boundary_start,boundary_end,points_inside,p
 
     # First try is to see if the boundary is complete as it is and can be just filled
 
-    Initial_boundary=fill_and_reverse(binary)
+    Initial_boundary=fill_and_reverse(binary,points_inside,points_outside)
 
     if Initial_boundary!=None:
         print("Initial boundary was already complete")
@@ -218,10 +218,10 @@ def ConnectingBoundaryFilling(binary,boundary_start,boundary_end,points_inside,p
         # print(f"Direction 1 is {direction_1}, Direction 2 is {direction_2}")
 
         connected_walls = walls_function(binary_temp, '0')
-        fill_and_reverse(connected_walls)
+        fill_and_reverse(connected_walls,points_inside,points_outside)
         # save_image(connected_walls,f'connected_walls {direction_1},{direction_2}.png')
         connected_walls = walls_function(binary_temp, '1')
-        array=fill_and_reverse(connected_walls)
+        array=fill_and_reverse(connected_walls,points_inside,points_outside)
 
         validity = True
 
@@ -306,7 +306,7 @@ def get_distance(pair):
     return a_distance + b_distance
 
 
-def help_function(array,start_point,end_point):
+def help_function(array,start_point,end_point,points_inside,points_outside):
 
     final_boundary_filled=None
 
@@ -322,7 +322,7 @@ def help_function(array,start_point,end_point):
 
     return final_boundary_filled
 
-def fill_and_reverse(image):
+def fill_and_reverse(image,points_inside,points_outside):
     image=image.copy()
     #print(np.unique(image))
     image[image==255]=1
