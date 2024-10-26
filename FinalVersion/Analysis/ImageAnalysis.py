@@ -322,10 +322,6 @@ def FullAnalyseImage(original_image,mean_weight=90,mean_range=11,pore_cut_off=3,
                             if angle < 0:
                                 angle += 180
 
-                        if 10000 < centroid_point[0] < 11000:
-                            if 2500 < centroid_point[1] < 3000:
-                                if A > 100:
-                                    continue
 
                         if roundness < 0.3:
                             for x, y in Marked_List:
@@ -333,22 +329,12 @@ def FullAnalyseImage(original_image,mean_weight=90,mean_range=11,pore_cut_off=3,
                                 final_cracks[x, y] = 0
                                 category="Crack"
                         else:
-                            if roundness >= 0.6:
-                                for x, y in Marked_List:
-                                    raw_image[x, y] = 255
-                                    final_gas_pores[x, y] = 0
-                                    category="Gas Pore"
-                            else:
-                                if 20 <= angle <= 160:
-                                    for x, y in Marked_List:
-                                        raw_image[x, y] = 255
-                                        final_gas_pores[x, y] = 0
-                                        category="Gas Pore"
-                                else:
-                                    for x, y in Marked_List:
-                                        raw_image[x, y] = 255
-                                        final_lack_of_fusion[x, y] = 0
-                                        category="Lack of Fusion Pore"
+
+                            for x, y in Marked_List:
+                                raw_image[x, y] = 255
+                                final_gas_pores[x, y] = 0
+                                category="Pore"
+
 
                         batch_data.append({
                             'Pore ID': f"P_{centroid_point[0]}_{centroid_point[1]}",

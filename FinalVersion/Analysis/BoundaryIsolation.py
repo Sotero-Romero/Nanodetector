@@ -8,7 +8,7 @@ import itertools
 import numpy as np
 import heapq
 from FinalVersion.utilities.ImageProcessor import ImageProcessor
-import matplotlib.pyplot as plt
+from scipy.spatial import KDTree
 
 #points_inside=[[2500,2500]]
 #points_outside=[[1,1],[80,2],[80,90]]
@@ -91,6 +91,30 @@ def Isolate_Boundary(images_paths,points, points_inside, points_outside,mean_wei
 
 # Load and process the original image
 PIL.Image.MAX_IMAGE_PIXELS = None
+
+def MatchBorders(img2, point_list_img1,mean_range,mean_weight):
+
+    mean_kernel = np.ones((mean_range, mean_range)) / mean_weight
+    smoothed_image = ndi.convolve(img2, mean_kernel, mode='nearest')
+    canny_detection = feature.canny(smoothed_image).astype(np.uint8)
+    canny_detection = cv.dilate(canny_detection, cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3)), iterations=1)
+
+    ones_coordinates = np.argwhere(canny_detection == 1)
+
+    if len(ones_coordinates) == 0:
+        return []
+
+    tree = KDTree(ones_coordinates)
+
+    closest_points = []
+
+    for point in point_list_img1:
+        distance, idx = tree.query(point)
+        closest_point = ones_coordinates[idx]
+        closest_points.append([closest_point[0], closest_point[1]])
+
+
+    return (canny_detection,closest_points)
 
 
 
@@ -388,21 +412,14 @@ def walls_function(image,Option):
                         return second_image
 
 def IsolateBoundary(original_image,points,mean_weight,mean_range):
-    #TODO: Changeeeeee arguments "mean"
+
 
     raw_image = original_image.copy()
 
     raw_image[raw_image==255]=254
 
 
-    mean_kernel = np.ones((mean_range, mean_range)) / mean_weight
-
-    print("raw_image shape:", raw_image.shape)
-    print("mean_kernel shape:", mean_kernel.shape)
-
-    smoothed_image = ndi.convolve(raw_image, mean_kernel, mode='nearest')
-    canny_detection = feature.canny(smoothed_image).astype(np.uint8)
-    canny_detection = cv.dilate(canny_detection, cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3)), iterations=1)
+    canny_detection,points=MatchBorders(original_image,points,mean_range,mean_weight)
 
     Domain_distance = 1
 
@@ -418,10 +435,6 @@ def IsolateBoundary(original_image,points,mean_weight,mean_range):
 
         raw_image[point_1[0],point_1[1]] = 255
         raw_image[point_2[0], point_2[1]] = 255
-
-        Area_of_Interest = raw_image[
-                           min(point_1[0], point_2[0]) - Domain_distance:max(point_1[0], point_2[0]) + Domain_distance,
-                           min(point_1[1], point_2[1]) - Domain_distance:max(point_1[1], point_2[1]) + Domain_distance]
 
 
 
