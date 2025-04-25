@@ -26,12 +26,9 @@ class AllParameters(customtkinter.CTkFrame):
         for widget in self.winfo_children():
             widget.destroy()
 
-    def saveParametersManual(self,m):
-        print(m.last_canny_params)
-        print(m.last_gaussian_params)
-        self.main_images[f"image set {self.currentImage}"]["analysis_parameter"]={"canny":m.last_canny_params
-                                                                                  ,"gauss":m.last_gaussian_params}
-        del m
+    def saveParametersManual(self,last_canny_params,last_gaussian_params ):
+        self.main_images[f"image set {self.currentImage}"]["analysis_parameter"]={"canny":last_canny_params
+                                                                                  ,"gauss":last_gaussian_params}
         self.currentImage+=1
         if not self.currentImage>=len(self.main_images):
             self.manual()
@@ -74,11 +71,10 @@ class GeneralParameters(customtkinter.CTkFrame):
         image = self.main_images[f"image set {1}"]["main_image"]
         AutomaticParameters(self, image).pack()
 
-    def saveParametersManual(self,m):
+    def saveParametersManual(self,last_canny_params,last_gaussian_params):
         for image_set in self.main_images:
-            self.main_images[image_set]["analysis_parameter"]={"canny":m.last_canny_params
-                                                                                  ,"gauss":m.last_gaussian_params}
-        del m
+            self.main_images[image_set]["analysis_parameter"]={"canny":last_canny_params
+                                                                                  ,"gauss":last_gaussian_params}
         self.creator.pre_run(self.main_images)
 
 

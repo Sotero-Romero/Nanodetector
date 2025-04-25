@@ -3,9 +3,6 @@ import cv2
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
-from scipy.ndimage import convolve as convolve2d
-from skimage import feature
-from scipy.ndimage import distance_transform_edt
 from FinalVersion.Analysis.ImageAnalysis import AnalyseImage
 from scipy import ndimage as ndi
 
@@ -17,7 +14,7 @@ class ManualSelection(customtkinter.CTkFrame):
 
         self.img_copy = np.copy(img)
         self.canny_var = (100, 200, 5, 25)
-        self.gauss_var = (5, 40)
+        self.gauss_var = (5, 41)
 
         # original image
         frame_1 = Figure(figsize=(7, 7))
@@ -53,7 +50,7 @@ class ManualSelection(customtkinter.CTkFrame):
         self.frame_4.pack_propagate(False)
 
         done=customtkinter.CTkButton(master=frame_3,text="Done",
-                                        command=lambda : creator.set_premilinary_image(
+                                        command=lambda : creator.storeParameters(
                                             canny_minimum=self.canny_var[0],
                                             canny_maximum=self.canny_var[1],
                                             canny_ksize=self.canny_var[2],

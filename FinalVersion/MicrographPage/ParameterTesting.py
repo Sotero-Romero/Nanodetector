@@ -72,6 +72,9 @@ class ParameterTesting(customtkinter.CTkFrame):
         done = customtkinter.CTkButton(master=buttom_holder, text="Automatic",command=self.set_Bayesian)
         done.pack(side="left", padx=25)
 
+    def storeParameters(self,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range):
+        self.set_premilinary_image(canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range)
+
     def set_ManualSelection(self):
         self.clear_window()
         ManualSelection(self,self.img_cut).pack()

@@ -1,8 +1,8 @@
 import customtkinter
 from FinalVersion.utilities.ImageCutter import ImageCutter
 from FinalVersion.utilities.ImageProcessor import ImageProcessor
-from FinalVersion.HighThrougput.CannyBoundarySlider import Multipleslider
 from FinalVersion.MicrographPage.ParametersFrames.Bayesian import Bayesian
+from FinalVersion.MicrographPage.ParametersFrames.ManualSelection import ManualSelection
 
 class ManualParameters(customtkinter.CTkFrame):
     def __init__(self,creator,img):
@@ -22,10 +22,13 @@ class ManualParameters(customtkinter.CTkFrame):
 
     def set_premilinary_image(self):
         self.clear_window()
-        m=Multipleslider(self,self.cutted_image)
+        m=ManualSelection(self,self.cutted_image)
         m.pack()
-        done = customtkinter.CTkButton(self, text="Done", command=lambda: self.creator.saveParametersManual(m))
-        done.pack()
+
+    def storeParameters(self,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range):
+        last_canny_params = {'canny_minimum': canny_minimum, 'canny_maximum': canny_maximum, 'canny_ksize':canny_ksize, 'canny_sigma': canny_sigma}
+        last_gaussian_params = {'gaussian_fidelity': gaussian_fidelity, 'gaussian_range': gaussian_range}
+        self.creator.saveParametersManual(last_canny_params,last_gaussian_params)
 
 
 class AutomaticParameters(customtkinter.CTkFrame):
@@ -41,11 +44,11 @@ class AutomaticParameters(customtkinter.CTkFrame):
             widget.destroy()
 
 
-    def set_premilinary_image(self,mean_weight,mean_range,Fidelity_Base):
+    def set_premilinary_image(self,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range):
         self.clear_window()
-        canny={'lower_thresh':mean_weight,'upper_thresh':mean_range}
-        gauss={'kernel_size':35,'sigma':Fidelity_Base}
-        self.creator.saveParametersAutomatic(canny,gauss)
+        canny_params = {'canny_minimum': canny_minimum, 'canny_maximum': canny_maximum, 'canny_ksize':canny_ksize, 'canny_sigma': canny_sigma}
+        gaussian_params = {'gaussian_fidelity': gaussian_fidelity, 'gaussian_range': gaussian_range}
+        self.creator.saveParametersAutomatic(canny_params,gaussian_params)
 
 
 #TODO: Wait for Tudor to confirm how he wants it
