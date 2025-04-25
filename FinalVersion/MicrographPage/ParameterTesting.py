@@ -22,13 +22,16 @@ class ParameterTesting(customtkinter.CTkFrame):
     def img_cut_set(self,img):
         self.img_cut=img
 
-    def set_premilinary_image(self,mean_weight=90,mean_range=11,pore_cut_off=3, Fidelity_Base=50):
+    def set_premilinary_image(self,canny_minimum=50, canny_maximum=100, canny_ksize=11,canny_sigma=25,gaussian_fidelity=5,gaussian_range=43):
         self.clear_window()
-        img=AnalyseImage(self.img_cut,
-                     mean_weight=mean_weight,
-                     mean_range=mean_range,
-                     pore_cut_off=pore_cut_off,
-                     Fidelity_Base=Fidelity_Base
+        img=AnalyseImage(
+                     original_image=self.img_cut,
+                     canny_minimum=canny_minimum,
+                     canny_maximum=canny_maximum,
+                     canny_ksize=canny_ksize,
+                     canny_sigma=canny_sigma,
+                     gaussian_fidelity=gaussian_fidelity,
+                     gaussian_range=gaussian_range
                      )
 
         ImageDisplayer(creator=self,image=img).pack()
@@ -42,7 +45,16 @@ class ParameterTesting(customtkinter.CTkFrame):
         back=customtkinter.CTkButton(master=buttom_holder,text="No",command=self.set_parameter_selection)
         back.pack(side="left",padx=25)
 
-        done = customtkinter.CTkButton(master=buttom_holder,text="Yes",command=lambda: self.creator.set_final_Analysis(self.img_copy,mean_weight,mean_range,pore_cut_off,Fidelity_Base))
+        done = customtkinter.CTkButton(master=buttom_holder,text="Yes",
+                                       command=lambda: self.creator.set_final_Analysis(
+                                         original_image=self.img_copy,
+                                         canny_minimum=canny_minimum,
+                                         canny_maximum=canny_maximum,
+                                         canny_ksize=canny_ksize,
+                                         canny_sigma=canny_sigma,
+                                         gaussian_fidelity=gaussian_fidelity,
+                                         gaussian_range=gaussian_range
+                                         ))
         done.pack(side="left",padx=25)
 
 
