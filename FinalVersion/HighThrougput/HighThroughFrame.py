@@ -61,6 +61,8 @@ class HighThroughFrame(customtkinter.CTkFrame):
         self.clear_window()
         MultipleAnalysis(self,data).pack()
 
+
+    #TODO: pre run parameters in 3 images, then confirm to end_anaylis
     def pre_run(self,data):
         self.clear_window()
         #ParameterTest(self,data).pack()

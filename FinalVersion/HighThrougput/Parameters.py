@@ -51,7 +51,7 @@ class AutomaticParameters(customtkinter.CTkFrame):
         self.creator.saveParametersAutomatic(canny_params,gaussian_params)
 
 
-#TODO: Wait for Tudor to confirm how he wants it
+#TODO: run analysis in max 3 images, then check if user like it
 class ParameterTest(customtkinter.CTkFrame):
     def __init__(self,creator,data):
         super(ParameterTest, self).__init__(creator)

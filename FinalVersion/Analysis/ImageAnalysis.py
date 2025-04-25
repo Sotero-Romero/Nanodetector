@@ -149,8 +149,18 @@ def AnalyseImage(original_image,canny_minimum, canny_maximum, canny_ksize,canny_
 
 
 
-#TODO: finish the function, maybe make another one just for saving the data
-def FullAnalyseImage(original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range,pore_cut_off=3):
+def FullAnalyseImage(original_image,
+                     canny_minimum,
+                     canny_maximum,
+                     canny_ksize,
+                     canny_sigma,
+                     gaussian_fidelity,
+                     gaussian_range,
+                     feather_path,
+                     pore_cut_off=3):
+
+
+
     original_image = original_image.copy()
     original_image = (
                 (original_image - original_image.min()) / (original_image.max() - original_image.min()) * 255).astype(
@@ -217,8 +227,6 @@ def FullAnalyseImage(original_image,canny_minimum, canny_maximum, canny_ksize,ca
     columns = ['Pore ID', 'Pore Centroid', 'Pixels in Pore', 'Pore Area', 'Pore Perimeter', 'Pore Roundness',
                'Pore Orientation', 'Pore Value', 'Pore Identity']
     df = pd.DataFrame(columns=columns)
-    name_of_feather = "backup"
-    feather_path = os.path.join("BackUp", f'{name_of_feather}.feather')
     df.to_feather(feather_path)
     batch_size = 1000
     batch_data = []
