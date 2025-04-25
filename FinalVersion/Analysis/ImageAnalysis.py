@@ -17,12 +17,18 @@ from scipy.spatial import KDTree
 
 
 
-def AnalyseImage(original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range,pore_cut_off=3,overlay=True):
-    return original_image
+def AnalyseImage(original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range,pore_cut_off=3):
+    #return original_image
     original_image = original_image.copy()
-    original_image = (
-                (original_image - original_image.min()) / (original_image.max() - original_image.min()) * 255).astype(
-        np.uint8)
+    image_min = original_image.min()
+    image_max = original_image.max()
+    range_val = image_max - image_min
+
+    if range_val == 0:
+        original_image = np.zeros_like(original_image)
+    else:
+        original_image = ((original_image - image_min) / range_val * 255).astype(np.uint8)
+
     original_image[original_image == 255] = 254
     original_image = np.pad(original_image, 1, mode='constant', constant_values=255)
     original_image = original_image.astype('uint8')
