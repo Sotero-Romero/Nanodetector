@@ -5,7 +5,7 @@ def bayesianEvaluation(canny_minimum, canny_maximum, canny_ksize,canny_sigma,gau
     result=0
 
     for type, original_image in points:
-        final_pores=AnalyseImage(original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range,overlay=False)
+        final_pores=AnalyseImage(original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range)
         if final_pores[y,x]==200 and type=="background":
             result+=1
         elif final_pores[y,x]==0 and type=="pore":
