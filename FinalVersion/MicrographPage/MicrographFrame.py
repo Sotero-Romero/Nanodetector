@@ -37,11 +37,11 @@ class MicrographFrame(customtkinter.CTkFrame):
         self.clear_window()
         ParameterTesting.ParameterTesting(creator=self,img=img).pack()
 
-    def set_final_Analysis(self,img,mean_weight,mean_range,pore_cut_off,Fidelity_Base):
+    def set_final_Analysis(self,original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range):
         self.clear_window()
         Final_analysis=FinalAnalysisFrame.FinalAnalysisFrame(self)
         Final_analysis.pack()
-        Final_analysis.analyse(img,mean_weight,mean_range,pore_cut_off,Fidelity_Base)
+        Final_analysis.analyse(original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range)
 
 
 

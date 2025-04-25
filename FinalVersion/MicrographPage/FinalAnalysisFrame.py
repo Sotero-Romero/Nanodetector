@@ -10,22 +10,17 @@ class FinalAnalysisFrame(customtkinter.CTkFrame):
         ProgressFrame.ProgressFrame(self).pack()
 
 
-        self.clear_window()
-
-
-
-
-
     def clear_window(self):
         for widget in self.winfo_children():
             widget.destroy()
 
 
-    def analyse(self,img,mean_weight,mean_range,pore_cut_off,Fidelity_Base):
-        self.img=FullAnalyseImage(img,mean_weight,mean_range,pore_cut_off,Fidelity_Base)
+    def analyse(self,original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range):
+        self.img=FullAnalyseImage(original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range)
         self.load_save_frame()
 
     def load_save_frame(self):
+        self.clear_window()
         SaveFrame(self,self.img).pack()
 
 
