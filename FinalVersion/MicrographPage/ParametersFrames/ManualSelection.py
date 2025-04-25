@@ -54,11 +54,12 @@ class ManualSelection(customtkinter.CTkFrame):
 
         done=customtkinter.CTkButton(master=frame_3,text="Done",
                                         command=lambda : creator.set_premilinary_image(
-                                            mean_weight=self.canny_var[1],
-                                            mean_range=self.canny_var[0],
-                                            pore_cut_off=self.gauss_var[1],
-                                            Fidelity_Base=self.gauss_var[0]
-                                        )
+                                            canny_minimum=self.canny_var[0],
+                                            canny_maximum=self.canny_var[1],
+                                            canny_ksize=self.canny_var[2],
+                                            canny_sigma=self.canny_var[3],
+                                            gaussian_fidelity=self.gauss_var[0],
+                                            gaussian_range=self.gauss_var[1])
                                      )
         done.pack(pady=30)
 
@@ -238,11 +239,14 @@ class ManualSelection(customtkinter.CTkFrame):
         def update_analysis():
             self.axs2.remove()
             self.axs2 = self.frame_2.add_subplot()
-            plt_image2 = AnalyseImage(self.img_copy,
-                                      mean_weight=self.canny_var[1],
-                                      mean_range=self.canny_var[0],
-                                      pore_cut_off=self.gauss_var[1],
-                                      Fidelity_Base=self.gauss_var[0])
+            plt_image2 = AnalyseImage(
+                                      original_image=self.img_copy,
+                                      canny_minimum=self.canny_var[0],
+                                      canny_maximum=self.canny_var[1],
+                                      canny_ksize=self.canny_var[2],
+                                      canny_sigma=self.canny_var[3],
+                                      gaussian_fidelity=self.gauss_var[0],
+                                      gaussian_range=self.gauss_var[1])
             self.axs2.imshow(plt_image2)
             self.can2.draw()
 
