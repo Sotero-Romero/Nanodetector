@@ -5,7 +5,7 @@ from FinalVersion.MicrographPage.ParametersFrames.ImageDisplayer import ImageDis
 from FinalVersion.Analysis.BayesianEvaluation import bayesianEvaluation
 import matplotlib.pyplot as plt
 from skopt import gp_minimize
-from skopt.space import  Integer
+from skopt.space import  Integer, Categorical
 import threading
 
 
@@ -73,9 +73,12 @@ class Bayesian(customtkinter.CTkFrame):
 
         # Define parameter space
         self.param_space = [
-            Integer(20, 60, name='fidelity'),
-            Integer(50, 150, name='mean_weight'),
-            Integer(5, 15, name="mean_range")
+            Integer(0, 255, name='canny_minimum'),
+            Integer(0, 255, name='canny_maximum'),
+            Categorical(list(range(1, 100, 2)), name="canny_ksize"),
+            Integer(0,50,name='canny_sigma'),
+            Integer(3,60,name='gaussian_fidelity'),
+            Categorical(list(range(35, 512, 2)), name="gaussian_range")
         ]
 
         self.start_optimization()
@@ -86,10 +89,10 @@ class Bayesian(customtkinter.CTkFrame):
 
     def run_optimization(self):
         def objective_function(params):
-            fidelity, mean_weight, mean_range = params
+            canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range   = params
             p = self.points
             # Replace with your actual function to evaluate success rate
-            return -bayesianEvaluation(fidelity, mean_weight, mean_range, p)
+            return -bayesianEvaluation(canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range, p)
 
         def callback(result):
             self.progress_bar.set(self.progress_bar.get() + 0.02)
@@ -110,9 +113,12 @@ class Bayesian(customtkinter.CTkFrame):
     def handle_optimization_result(self,result):
 
         self.creator.set_premilinary_image(
-            mean_weight=result[1],
-            mean_range=result[2],
-            Fidelity_Base=result[0]
+            canny_minimum=result[0],
+            canny_maximum=result[1],
+            canny_ksize=result[2],
+            canny_sigma=result[3],
+            gaussian_fidelity=result[4],
+            gaussian_range=result[5]
         )
 
 
