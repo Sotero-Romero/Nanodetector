@@ -7,6 +7,8 @@ from scipy.ndimage import convolve as convolve2d
 from skimage import feature
 from scipy.ndimage import distance_transform_edt
 from FinalVersion.Analysis.ImageAnalysis import AnalyseImage
+from scipy import ndimage as ndi
+
 
 
 class ManualSelection(customtkinter.CTkFrame):
@@ -14,7 +16,7 @@ class ManualSelection(customtkinter.CTkFrame):
         super(ManualSelection, self).__init__(master=creator)
 
         self.img_copy = np.copy(img)
-        self.canny_var = (5, 40)
+        self.canny_var = (100, 200, 5, 25)
         self.gauss_var = (5, 40)
 
         # original image
@@ -86,46 +88,72 @@ class ManualSelection(customtkinter.CTkFrame):
     def canny(self):
         #create sliders
 
-
-
-        slider = customtkinter.CTkSlider(self.frame_4, from_=0, to=10,
-                                         command=lambda val:mean_range(val,slider2.get(),label,label1))
+        # First slider (Minimum)
+        label = customtkinter.CTkLabel(self.frame_4, text="Minimum:")
+        label.grid(row=0, column=0, padx=10, pady=5)
+        slider = customtkinter.CTkSlider(self.frame_4, from_=0, to=255,
+                                         command=lambda val: evaluate(val, slider2.get(), slider3.get(), slider4.get(),
+                                                                      label, label1, label2, label3))
         slider.set(self.canny_var[0])
+        slider.grid(row=1, column=0, padx=10, pady=10)
 
-        label = customtkinter.CTkLabel(self.frame_4, text="Range: " + str(slider.get()))
-        label.pack(pady=5)
-        slider.pack(pady=10)
-
-
-
-        slider2 = customtkinter.CTkSlider(self.frame_4, from_=0, to=100,
-                                          command=lambda val: mean_range(slider.get(), val,label,label1)
-                                          )
+        # Second slider (Maximum)
+        label1 = customtkinter.CTkLabel(self.frame_4, text="Maximum:")
+        label1.grid(row=0, column=1, padx=10, pady=5)
+        slider2 = customtkinter.CTkSlider(self.frame_4, from_=0, to=255,
+                                          command=lambda val: evaluate(slider.get(), val, slider3.get(), slider4.get(),
+                                                                       label, label1, label2, label3))
         slider2.set(self.canny_var[1])
-        label1 = customtkinter.CTkLabel(self.frame_4, text="Width: "+str(slider2.get()))
-        label1.pack(pady=5)
-        slider2.pack(pady=10)
+        slider2.grid(row=1, column=1, padx=10, pady=10)
+
+        # Third slider (K size)
+        label2 = customtkinter.CTkLabel(self.frame_4, text="K size:")
+        label2.grid(row=0, column=2, padx=10, pady=5)
+        slider3 = customtkinter.CTkSlider(self.frame_4, from_=3, to=99, number_of_steps=48,
+                                          command=lambda val: evaluate(slider.get(), slider2.get(), val, slider4.get(),
+                                                                       label, label1, label2, label3))
+        slider3.set(self.canny_var[2])
+        slider3.grid(row=1, column=2, padx=10, pady=10)
+
+        # Fourth slider (Sigma)
+        label3 = customtkinter.CTkLabel(self.frame_4, text="Sigma:")
+        label3.grid(row=0, column=3, padx=10, pady=5)
+        slider4 = customtkinter.CTkSlider(self.frame_4, from_=0, to=50, number_of_steps=100,
+                                          command=lambda val: evaluate(slider.get(), slider2.get(), slider3.get(), val,
+                                                                       label, label1, label2, label3))
+        slider4.set(self.canny_var[3])
+        slider4.grid(row=1, column=3, padx=10, pady=10)
 
 
 
 
-        def mean_range(range,width,L,L2):
-            L.configure(text="Range: " + str(int(range)))
-            L2.configure(text="Width: " + str(int(width)))
+        def evaluate(canny_minimum,canny_maximum, ksize, canny_sigma,L,L2, L3, L4):
+            #change labels
+            L.configure(text="Minimum: " + str(int(canny_minimum)))
+            L2.configure(text="Maximum: " + str(int(canny_maximum)))
+            L3.configure(text="Ksize: " + str(int(ksize)))
+            L4.configure(text="Sigma: " + str(int(canny_sigma)))
+
             self.axs2.remove()
             self.axs2 = self.frame_2.add_subplot()
-            plt_image2 = self.canny_detection(int(range),int(width))
+            plt_image2 = self.canny_detection(canny_minimum,canny_maximum, int(ksize), canny_sigma)
             self.axs2.imshow(plt_image2)
             self.can2.draw()
 
 
-    def canny_detection(self,mean_range=5,mean_width=40):
-        self.canny_var=(mean_range,mean_width)
+    def canny_detection(self,canny_minimum=100,canny_maximum=200, ksize=15, canny_sigma=3):
 
-        mean_kernel = np.ones((mean_range, mean_range)) / mean_width
-        smoothed_image = convolve2d(self.img_copy, mean_kernel, mode='nearest')
+        self.canny_var= (canny_minimum,canny_maximum, ksize, canny_sigma)
 
-        return feature.canny(smoothed_image)
+        original_image = self.img_copy.copy()
+        original_image = (
+                (original_image - original_image.min()) / (original_image.max() - original_image.min()) * 255).astype(
+            np.uint8)
+
+        gaussian_blurred = cv2.GaussianBlur(original_image, (ksize, ksize), canny_sigma)
+        edges = cv2.Canny(gaussian_blurred, canny_minimum, canny_maximum)
+
+        return edges
 
 
 
@@ -134,25 +162,25 @@ class ManualSelection(customtkinter.CTkFrame):
 
 
     def gaussian(self):
-        slider = customtkinter.CTkSlider(self.frame_4, from_=0, to=10,
+        slider = customtkinter.CTkSlider(self.frame_4, from_=3, to=60, number_of_steps=57,
                                          command=lambda val: fid_siz(val,slider2.get(), label, label1))
         slider.set(self.gauss_var[0])
         label = customtkinter.CTkLabel(self.frame_4, text="Fidelity: " + str(slider.get()))
         label.pack(pady=5)
         slider.pack(pady=10)
 
-        slider2 = customtkinter.CTkSlider(self.frame_4, from_=35, to=100,
+        slider2 = customtkinter.CTkSlider(self.frame_4, from_=35, to=511, number_of_steps= 238,
                                           command=lambda val: fid_siz(slider.get(), val, label, label1)
                                           )
         slider2.set(self.gauss_var[1])
-        label1 = customtkinter.CTkLabel(self.frame_4, text="Maximum size: " + str(slider2.get()))
+        label1 = customtkinter.CTkLabel(self.frame_4, text="Range: " + str(slider2.get()))
         label1.pack(pady=5)
         slider2.pack(pady=10)
 
         def fid_siz(fidelity,max_size,L,L2):
 
             L.configure(text="Fidelity: " +str(int(fidelity)))
-            L2.configure(text="Maximum size: " +str(int(max_size)))
+            L2.configure(text="Range: " +str(int(max_size)))
             self.axs2.remove()
             self.axs2 = self.frame_2.add_subplot()
             plt_image2 = self.gauss(int(fidelity), int(max_size))
@@ -162,38 +190,46 @@ class ManualSelection(customtkinter.CTkFrame):
 
 
 
-    def gauss(self,f=5,mx=40):
-        self.gauss_var=(f,mx)
+    def gauss(self,gaussian_fidelity=5,gaussian_range=40):
+        self.gauss_var=(gaussian_fidelity,gaussian_range)
 
+        pad=gaussian_range
 
-        dt_img=np.pad(self.img_copy,(mx-1,mx-1), "symmetric")
-        dt_img=np.pad(dt_img,(1,1),constant_values=255)
+        original_image = self.img_copy.copy()
+        original_image =  np.pad(original_image, (pad,pad), mode='symmetric')
+        original_image = (
+                (original_image - original_image.min()) / (original_image.max() - original_image.min()) * 255).astype(
+            np.uint8)
+        original_image[original_image == 255] = 254
+        original_image = np.pad(original_image, 1, mode='constant', constant_values=255)
+        original_image = original_image.astype('uint8')
+        raw_image = original_image.copy()
 
-        Inner_Distance_Map = distance_transform_edt(dt_img != 255)
+        inner_distance_map = ndi.distance_transform_edt(raw_image != 255)
+        inner_distance_map = np.round(inner_distance_map, decimals=2)
+        inner_distance_map, raw_image, original_image = inner_distance_map[1:-1, 1:-1], raw_image[1:-1,
+                                                                                        1:-1], original_image[1:-1,
+                                                                                               1:-1]
 
-        Inner_Distance_Map = np.round(Inner_Distance_Map, decimals=2)
+        bright_edges = np.full_like(raw_image, 0)
+        bright_edges[raw_image > 210] = 200
 
-        Inner_Distance_Map = Inner_Distance_Map[mx:-mx,mx:-mx]
+        raw_image[bright_edges == 200] = np.mean(raw_image)
+        bright_distance_map = ndi.distance_transform_edt(raw_image < 200)
+        bright_distance_map = np.round(bright_distance_map)
 
-        Gaussian_Detection = np.zeros([self.img_copy.shape[0], self.img_copy.shape[1]])
+        gaussian_detection = np.full_like(raw_image, 200)
 
-        Gaussian_Detection[Gaussian_Detection == 0] = 200
+        gaussian_filt = cv2.adaptiveThreshold(raw_image, 200, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,
+                                             gaussian_range, gaussian_fidelity)
+        gaussian_filt[inner_distance_map < gaussian_range] = 200
+        gaussian_filt[bright_distance_map < (300 / gaussian_range)] = 200
+        gaussian_detection[gaussian_filt == 0] = 0
 
-        Gaussian_Ranges = [i if (i % 2 == 1) else i + 1 for i in range(31, mx, int((mx - 30) / 5))]
-        for k in Gaussian_Ranges:
-            img = np.pad(self.img_copy, (k-1, k-1), "symmetric")
+        del gaussian_filt
+        del inner_distance_map, bright_distance_map
 
-
-            Gaussian_Filter = cv2.adaptiveThreshold(img, 200, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, \
-                                                    cv2.THRESH_BINARY, k, f)
-            Gaussian_Filter=Gaussian_Filter[k:self.img_copy.shape[0]+k,k:self.img_copy.shape[1]+k]
-
-            Gaussian_Detection[Gaussian_Filter == 0] = 0
-
-            Gaussian_Detection[Inner_Distance_Map < k] = 200
-
-
-        return Gaussian_Detection
+        return gaussian_detection[pad:-pad,pad:-pad]
 
 
 

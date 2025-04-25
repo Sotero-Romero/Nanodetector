@@ -1,7 +1,7 @@
 import customtkinter
 from FinalVersion.HighThrougput.MultipleImageUploader import MultipleImageUploader
 from FinalVersion.HighThrougput.choosing import Choosing,Choosing2
-from FinalVersion.HighThrougput.MultipleBoundarySelection import MultipleBoundarySelection
+from FinalVersion.HighThrougput.MultipleBoundarySelection import MultipleBoundarySelection,UnitaryBoundarySelection
 from FinalVersion.HighThrougput.CannyBoundarySlider import CannyBoundarySlider
 from FinalVersion.HighThrougput.SelectParameters import AllParameters,GeneralParameters
 from FinalVersion.HighThrougput.MutlipleAnalysis import MultipleAnalysis
@@ -33,7 +33,7 @@ class HighThroughFrame(customtkinter.CTkFrame):
     #TODO:implement Tudor Script
     def set_automaticBoundary(self):
         self.clear_window()
-        pass
+        UnitaryBoundarySelection(self,self.images).pack()
 
     def calculate_boundaries(self,data):
         self.clear_window()
@@ -63,7 +63,7 @@ class HighThroughFrame(customtkinter.CTkFrame):
 
     def pre_run(self,data):
         self.clear_window()
-        ParameterTest(self,data).pack()
+        #ParameterTest(self,data).pack()
 
 
         

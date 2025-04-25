@@ -124,5 +124,5 @@ class BoundarySelection(customtkinter.CTkFrame):
     #TODO: make it work
     def isolate(self):
         del self.current_image
-        img=Isolate_Boundary(self.images,self.points,self.points_inside,self.points_outside,width=self.width,height=self.height)
-        self.creator.set_parameters(img)
+        #img=Isolate_Boundary(self.images,self.points,self.points_inside,self.points_outside,width=self.width,height=self.height)
+        self.creator.set_parameters(ImageProcessor(self.images[0],self.width,self.height))
