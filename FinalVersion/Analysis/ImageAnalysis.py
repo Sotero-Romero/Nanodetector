@@ -10,12 +10,14 @@ import cv2 as cv
 import PIL
 import pandas as pd
 import pyarrow.feather as feather
+from scipy.spatial import KDTree
 
 
 
 
 
-def AnalyseImage(original_image,mean_weight=90,mean_range=11,pore_cut_off=3, gaussian_fidelity=50,overlay=True, Fidelity_Base=0):
+
+def AnalyseImage(original_image,canny_minimum, canny_maximum, canny_ksize,canny_sigma,gaussian_fidelity,gaussian_range,pore_cut_off=3,overlay=True):
     return original_image
     original_image = original_image.copy()
     original_image = (
@@ -37,7 +39,7 @@ def AnalyseImage(original_image,mean_weight=90,mean_range=11,pore_cut_off=3, gau
     raw_image[bright_edges == 200] = np.mean(raw_image)
     bright_distance_map = ndi.distance_transform_edt(raw_image < 200)
     bright_distance_map = np.round(bright_distance_map)
-    gaussian_blurred = cv.GaussianBlur(raw_image, (ksize, ksize), canny_sigma)
+    gaussian_blurred = cv.GaussianBlur(raw_image, (canny_ksize, canny_ksize), canny_sigma)
     edges = cv.Canny(gaussian_blurred, canny_minimum, canny_maximum)
     canny_detection = cv.dilate(edges, cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3)), iterations=2)
 
@@ -80,13 +82,6 @@ def AnalyseImage(original_image,mean_weight=90,mean_range=11,pore_cut_off=3, gau
     rows, cols = raw_image.shape
     del raw_image, inverted_array, bright_edges
 
-    columns = ['Pore ID', 'Pore Centroid', 'Pixels in Pore', 'Pore Area', 'Pore Perimeter', 'Pore Roundness',
-               'Pore Orientation', 'Pore Value', 'Pore Identity']
-    df = pd.DataFrame(columns=columns)
-    name_of_feather = image_name[0:-4]
-    feather_path = os.path.join(save_folder, f'{name_of_feather}.feather')
-    batch_size = 1000
-    batch_data = []
 
     for i in range(rows):
         for j in range(cols):
@@ -122,103 +117,25 @@ def AnalyseImage(original_image,mean_weight=90,mean_range=11,pore_cut_off=3, gau
 
                 A = len(Marked_List)
 
-                X_vals = [element[0] for element in Marked_List]
-
-                Y_vals = [element[1] for element in Marked_List]
-
                 try:
                     roundness = 4 * math.pi * A / (P ** 2)
                     pore_value = roundness * A
-                    centroid_point = [sum(X_vals) // A, sum(Y_vals) // A]
 
                     if pore_value >= pore_cut_off and roundness > 0.005:
 
-                        List_Boundary = np.array(List_Boundary)
-
-                        if roundness > 0.3 and len(
-                                List_Boundary) > 5:
-                            ellipse = cv.fitEllipse(List_Boundary)
-                            center, axes, angle = ellipse
-                            ellipse = ((center[1], center[0]), axes, angle)
-                            if angle < 0:
-                                angle += 180
-
-                        else:
-
-                            coordinates_array = np.array(List_Boundary).astype(np.uint8)
-
-                            if len(coordinates_array) >= 2:
-
-                                tree = KDTree(coordinates_array)
-
-                                point1_idx, point2_idx = tree.query(coordinates_array, k=2)[1].max(axis=0)
-
-                                point1, point2 = coordinates_array[point1_idx], coordinates_array[point2_idx]
-
-                                filled_detection[point1[0], point1[1]] = 100
-                                filled_detection[point2[0], point2[1]] = 50
-
-                                point1 = point1.astype(np.float64)
-                                point2 = point2.astype(np.float64)
-
-                                angle = round(
-                                    math.atan2(
-                                        float(point1[0] - point2[0]),
-                                        float(point1[1] - point2[1])
-                                    )
-                                    * 180 / math.pi
-                                )
-
-                                if angle < 0:
-                                    angle += 180
-
-                            else:
-                                angle = 0
-
-                        new_marked_list = []
-
-                        for element in Marked_List:
-                            s = [element[0], element[1]]
-                            new_marked_list.append(s)
-
                         if roundness < 0.3:
+                            #Crack
                             for x, y in Marked_List:
                                 final_pores[x, y] = 0
-                                category = "Crack"
                         else:
+                            #Pore
                             for x, y in Marked_List:
                                 final_pores[x, y] = 0
-                                category = "Pore"
 
-                        batch_data.append({
-                            'Pore ID': f"P_{centroid_point[0]}_{centroid_point[1]}",
-                            'Pore Centroid': centroid_point,
-                            'Pixels in Pore': Marked_List,
-                            'Pore Area': A,
-                            'Pore Perimeter': P,
-                            'Pore Roundness': roundness,
-                            'Pore Orientation': angle,
-                            'Pore Value': pore_value,
-                            'Pore Identity': category,
-                        })
-
-                        if len(batch_data) >= batch_size:
-                            batch_df = pd.DataFrame(batch_data)
-                            if os.path.exists(feather_path):
-                                existing_df = feather.read_feather(feather_path)
-                                batch_df = pd.concat([existing_df, batch_df], ignore_index=True)
-                            feather.write_feather(batch_df, feather_path)
-                            batch_data = []
 
                 except ZeroDivisionError:
                     continue
 
-    if batch_data:
-        batch_df = pd.DataFrame(batch_data)
-        if os.path.exists(feather_path):
-            existing_df = feather.read_feather(feather_path)
-            batch_df = pd.concat([existing_df, batch_df], ignore_index=True)
-        feather.write_feather(batch_df, feather_path)
 
     return (final_pores)
 
