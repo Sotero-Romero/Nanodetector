@@ -15,7 +15,6 @@ class CannyBoundarySlider(ctk.CTkFrame):
         path=data["image set 1"]["images"][0]["path"]
         width, height = data["image set 1"]["images"][0]["dimensions"]
         self.original_image=ImageProcessor(path, width, height, 0)
-        #TODO:maybe is the other way around
         pointx,pointy=data["image set 1"]["Boundary_points"][0][0][1]
         self.original_image=self.original_image[max(pointx-500,0):max(pointx+500,1000),max(pointy-500,0):max(pointy+500,1000)]
         original_height, original_width = self.original_image.shape

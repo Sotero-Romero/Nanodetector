@@ -1,5 +1,6 @@
 import customtkinter
 from FinalVersion.HighThrougput.MultipleImageUploader import MultipleImageUploader
+from FinalVersion.HighThrougput.Parameters import ParameterTest
 from FinalVersion.HighThrougput.choosing import Choosing,Choosing2
 from FinalVersion.HighThrougput.MultipleBoundarySelection import MultipleBoundarySelection,UnitaryBoundarySelection
 from FinalVersion.HighThrougput.CannyBoundarySlider import CannyBoundarySlider
@@ -56,7 +57,6 @@ class HighThroughFrame(customtkinter.CTkFrame):
         self.images["boundary_parameters"]=parameters
         Choosing2(self).pack()
 
-    #TODO: Finish script for multiple analysis
     def end_analysis(self,data):
         self.clear_window()
         MultipleAnalysis(self,data).pack()
@@ -65,7 +65,7 @@ class HighThroughFrame(customtkinter.CTkFrame):
     #TODO: pre run parameters in 3 images, then confirm to end_anaylis
     def pre_run(self,data):
         self.clear_window()
-        #ParameterTest(self,data).pack()
+        ParameterTest(self,data).pack()
 
 
         
