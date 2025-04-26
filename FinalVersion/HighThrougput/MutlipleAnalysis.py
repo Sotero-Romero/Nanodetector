@@ -29,18 +29,20 @@ class MultipleAnalysis(customtkinter.CTkFrame):
     #TODO: make isolate work
     def analyseDownload(self):
         if self.folderPath!="":
-            for set_key, set in self.data.items():
+            for set_key, sets in self.data.items():
+                if set_key == "boundary_parameters": continue
+
                 #img=Isolate_Boundary(images_paths, points, points_inside, points_outside, mean_weight=350,mean_range=30, width=0, height=0):
 
-                img=ImageProcessor(set["main_image"]["path"],set["main_image"]["dimensions"][0],
-                                   set["main_image"]["dimensions"][1],0)
-                canny_params=set["analysis_parameter"]["canny"]
+                img=ImageProcessor(sets["main_image"]["path"],sets["main_image"]["dimensions"][0],
+                                   sets["main_image"]["dimensions"][1],0)
+                canny_params=sets["analysis_parameter"]["canny"]
                 canny_minimum= canny_params["canny_minimum"]
                 canny_maximum= canny_params["canny_maximum"]
                 canny_ksize= canny_params["canny_ksize"]
                 canny_sigma= canny_params["canny_sigma"]
 
-                gaussian_params=set["analysis_parameter"]["gauss"]
+                gaussian_params=sets["analysis_parameter"]["gauss"]
                 gaussian_fidelity= gaussian_params["gaussian_fidelity"]
                 gaussian_range= gaussian_params["gaussian_range"]
 

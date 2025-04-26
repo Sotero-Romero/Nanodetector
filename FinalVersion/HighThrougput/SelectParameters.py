@@ -73,13 +73,14 @@ class GeneralParameters(customtkinter.CTkFrame):
 
     def saveParametersManual(self,last_canny_params,last_gaussian_params):
         for image_set in self.main_images:
-            self.main_images[image_set]["analysis_parameter"]={"canny":last_canny_params
-                                                                                  ,"gauss":last_gaussian_params}
+            if image_set == "boundary_parameters": continue
+            self.main_images[image_set]["analysis_parameter"]={"canny":last_canny_params,"gauss":last_gaussian_params}
         self.creator.pre_run(self.main_images)
 
 
     def saveParametersAutomatic(self,last_canny_params,last_gaussian_params):
         for image_set in self.main_images:
+            if image_set == "boundary_parameters": continue
             self.main_images[image_set]["analysis_parameter"] = {"canny": last_canny_params
                 , "gauss": last_gaussian_params}
         self.creator.pre_run(self.main_images)
